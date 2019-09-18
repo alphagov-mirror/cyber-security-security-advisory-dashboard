@@ -520,6 +520,7 @@ def build_route_data(today):
     route_data_overview_repositories_by_status(today)
     route_data_overview_alert_status(today)
     route_data_overview_vulnerable_repositories(today)
+    route_data_overview_activity(today)
 
 
 def route_data_overview_repositories_by_status(today):
@@ -601,23 +602,30 @@ def route_data_overview_vulnerable_repositories(today):
 
 def route_data_overview_activity(today):
     repositories_by_status = storage.read_json(f"{today}/data/repositories.json")
-    bands = defaultdict(int)
+    counts = defaultdict(int)
     repositories_by_activity = defaultdict(list)
     for status, repo_list in repositories_by_status.items():
         if status in ["public","private"]:
             for repo in repo_list:
                 if "recentCommitDaysAgo" in repo:
                     currency = repo.currencyBand
-                    bands[currency] += 1
+                    counts[currency] += 1
                     repositories_by_activity[currency].append(repo)
 
 
+    bands = [
+        "within a month",
+        "within a quarter",
+        "within a year",
+        "older"
+    ]
     template_data = {
         "content": {
             "title": "Overview - Activity",
             "org": config.get_value("github_org"),
             "activity": {
-                "counts": bands,
+                "bands": bands,
+                "counts": counts,
                 "repositories": repositories_by_activity
             }
         },
@@ -734,6 +742,7 @@ def route_overview_repository_monitoring_status():
         )
 
 
+@app.route("/overview/activity")
 def route_overview_activity():
     try:
         current = get_current_audit()
