@@ -377,6 +377,80 @@ def build_route_data(today):
     route_data_overview_vulnerable_repositories(today)
     route_data_overview_activity(today)
     route_data_overview_monitoring_status(today)
+    route_data_overview_vulnerability_stats(today)
+
+
+def route_data_overview_vulnerability_stats(today):
+    repositories = storage.read_json(f"{today}/data/repositories.json")
+
+    counts = defaultdict(int)
+    now = arrow.utcnow()
+
+    public_list = [
+        node for node in repositories.public if node.vulnerabilityAlerts.edges
+    ]
+    public_by_severity = vulnerability_summarizer.group_by_severity(public_list)
+
+    for repo in repositories.public:
+        for severity, vuln_repos in public_by_severity.items():
+            for vuln_repo in vuln_repos:
+                if repo.name == vuln_repo.name:
+                    if "vulnerabilityAlerts" in vuln_repo:
+                        for vulnAlert in repo.vulnerabilityAlerts.edges:
+
+                            published = arrow.get(
+                                vulnAlert.node.securityAdvisory.publishedAt
+                            )
+                            since_delta = now - published
+                            since_days = since_delta.days
+
+                            since_band = "older"
+                            if since_days <= 28:
+                                since_band = "within a month"
+                            elif since_days <= 91:
+                                since_band = "within a quarter"
+                            elif since_days <= 365:
+                                since_band = "within a year"
+
+                            count_severity = f"{severity}_{since_band}"
+                            counts[count_severity] += 1
+
+                            counts[since_band] += 1
+    public_count_data = {
+        "ALL_COUNTS": {
+            "older": counts["older"],
+            "within a month": counts["within a month"],
+            "within a quarter": counts["within a quarter"],
+            "within a year": counts["within a year"],
+        },
+        "CRITICAL_COUNTS": {
+            "older": counts["CRITICAL_older"],
+            "within a month": counts["CRITICAL_within a month"],
+            "within a quarter": counts["CRITICAL_within a quarter"],
+            "within a year": counts["CRITICAL_within a year"],
+        },
+        "HIGH_COUNTS": {
+            "older": counts["HIGH_older"],
+            "within a month": counts["HIGH_within a month"],
+            "within a quarter": counts["HIGH_within a quarter"],
+            "within a year": counts["HIGH_within a year"],
+        },
+        "MODERATE_COUNTS": {
+            "older": counts["MODERATE_older"],
+            "within a month": counts["MODERATE_within a month"],
+            "within a quarter": counts["MODERATE_within a quarter"],
+            "within a year": counts["MODERATE_within a year"],
+        },
+        "LOW_COUNTS": {
+            "older": counts["LOW_older"],
+            "within a month": counts["LOW_within a month"],
+            "within a quarter": counts["LOW_within a quarter"],
+            "within a year": counts["LOW_within a year"],
+        },
+    }
+    vuln_repo.public_age_counts = public_count_data
+
+    storage.save_json(f"{today}/data/public_by_severity.json", public_by_severity)
 
 
 def route_data_overview_monitoring_status(today):

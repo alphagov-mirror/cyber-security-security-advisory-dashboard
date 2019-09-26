@@ -30,9 +30,16 @@ query {
               packageName
               vulnerableManifestPath
               vulnerableRequirements
+              dismissedAt
+              dismissReason
+              dismisser {
+                login
+              }
               securityAdvisory {
                 id
                 summary
+                publishedAt
+                updatedAt
                 vulnerabilities(first:20) {
                   pageInfo {
                     endCursor
