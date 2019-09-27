@@ -404,13 +404,13 @@ def route_data_overview_vulnerability_stats(today):
                             since_delta = now - published
                             since_days = since_delta.days
 
-                            since_band = "older"
-                            if since_days <= 28:
-                                since_band = "within a month"
-                            elif since_days <= 91:
-                                since_band = "within a quarter"
+                            since_band = "> 365 days"
+                            if since_days <= 30:
+                                since_band = "0 - 30 days"
+                            elif since_days <= 90:
+                                since_band = "31 - 90 days"
                             elif since_days <= 365:
-                                since_band = "within a year"
+                                since_band = "91 - 365 days"
 
                             count_severity = f"{severity}_{since_band}"
                             counts[count_severity] += 1
@@ -418,34 +418,34 @@ def route_data_overview_vulnerability_stats(today):
                             counts[since_band] += 1
     public_count_data = {
         "ALL_COUNTS": {
-            "older": counts["older"],
-            "within a month": counts["within a month"],
-            "within a quarter": counts["within a quarter"],
-            "within a year": counts["within a year"],
+            "> 365 days": counts["> 365 days"],
+            "0 - 30 days": counts["0 - 30 days"],
+            "31 - 90 days": counts["31 - 90 days"],
+            "91 - 365 days": counts["91 - 365 days"],
         },
         "CRITICAL_COUNTS": {
-            "older": counts["CRITICAL_older"],
-            "within a month": counts["CRITICAL_within a month"],
-            "within a quarter": counts["CRITICAL_within a quarter"],
-            "within a year": counts["CRITICAL_within a year"],
+            "> 365 days": counts["CRITICAL_> 365 days"],
+            "0 - 30 days": counts["CRITICAL_0 - 30 days"],
+            "31 - 90 days": counts["CRITICAL_31 - 90 days"],
+            "91 - 365 days": counts["CRITICAL_91 - 365 days"],
         },
         "HIGH_COUNTS": {
-            "older": counts["HIGH_older"],
-            "within a month": counts["HIGH_within a month"],
-            "within a quarter": counts["HIGH_within a quarter"],
-            "within a year": counts["HIGH_within a year"],
+            "> 365 days": counts["HIGH_> 365 days"],
+            "0 - 30 days": counts["HIGH_0 - 30 days"],
+            "31 - 90 days": counts["HIGH_31 - 90 days"],
+            "91 - 365 days": counts["HIGH_91 - 365 days"],
         },
         "MODERATE_COUNTS": {
-            "older": counts["MODERATE_older"],
-            "within a month": counts["MODERATE_within a month"],
-            "within a quarter": counts["MODERATE_within a quarter"],
-            "within a year": counts["MODERATE_within a year"],
+            "> 365 days": counts["MODERATE_> 365 days"],
+            "0 - 30 days": counts["MODERATE_0 - 30 days"],
+            "31 - 90 days": counts["MODERATE_31 - 90 days"],
+            "91 - 365 days": counts["MODERATE_91 - 365 days"],
         },
         "LOW_COUNTS": {
-            "older": counts["LOW_older"],
-            "within a month": counts["LOW_within a month"],
-            "within a quarter": counts["LOW_within a quarter"],
-            "within a year": counts["LOW_within a year"],
+            "> 365 days": counts["LOW_> 365 days"],
+            "0 - 30 days": counts["LOW_0 - 30 days"],
+            "31 - 90 days": counts["LOW_31 - 90 days"],
+            "91 - 365 days": counts["LOW_91 - 365 days"],
         },
     }
     vuln_repo.public_age_counts = public_count_data
