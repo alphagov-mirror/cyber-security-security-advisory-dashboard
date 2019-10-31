@@ -30,9 +30,9 @@ resources:
       uri: git@github.com:alphagov/cyber-security-terraform.git
       branch: master
       private_key: ((deploy_key))
-      paths:
-        - service/github_audit/account/779799343306/apply.tfvars
-        - service/github_audit/account/779799343306/backend.tfvars
+      # paths:
+      #   - service/github_audit/account/779799343306/apply.tfvars
+      #   - service/github_audit/account/779799343306/backend.tfvars
 
 blocks:
   - &security-advisory-dashboard-git
